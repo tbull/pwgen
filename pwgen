@@ -1,0 +1,11 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+
+my $length = $ARGV[0] || 10;
+my @chars  = ('0'..'9', 'A'..'Z', '!', '$', '&', '/', ',', '.', '0'..'9', 'a'..'z', '(', ')', '=', '-', '+');
+
+print($chars[int(rand(scalar(@chars)))]) while($length--);
+print("\n");
+
