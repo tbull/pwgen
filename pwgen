@@ -1,11 +1,61 @@
 #!/usr/bin/perl -w
 
 use strict;
+use Getopt::Std qw/getopts/;
+
+
+use vars qw/%opts/;
+
+%opts = ();
+
+
+
+###### usage_text()
+#
+#   Returns a usage text (does not print it). Tries not to exceed an 80 column screen.
+#
+
+sub usage_text() {
+    return join("\n",
+        "Usage: $0 [-s <setname>] [length]",
+        "",
+        "Returns a random string made up from a given set of characters,",
+        "suitable for use as a password, with a length of 'length' chars,",
+        "or 10, if no length is given.",
+        "",
+        "    -s: use a named set of characters. Names are: anum",
+        "",
+        "xren.pl (C) Copyright 2003-2008 by Calocybe Creations",
+        ""
+    );
+}
+
+
+
+
+my @charset;
+
+
+getopts('s:', \%opts);
+print(usage_text()), return 1 unless (@ARGV <= 1);
+
+
+# default charset
+@charset = ('0'..'9', 'A'..'Z', '!', '$', '&', '/', ',', '.', '0'..'9', 'a'..'z', '(', ')', '=', '-', '+');
+
+if ($opts{'s'}) {
+    $opts{'s'} = lc($opts{'s'});
+
+    $opts{'s'} eq 'anum' and
+        @charset = ('0'..'9', 'A'..'Z', 'a'..'z') or
+    $opts{'s'} eq 'safe' and
+        @charset = ('0'..'9', 'A'..'Z', 'a'..'z', ',', '.');
+
+}
 
 
 my $length = $ARGV[0] || 10;
-my @chars  = ('0'..'9', 'A'..'Z', '!', '$', '&', '/', ',', '.', '0'..'9', 'a'..'z', '(', ')', '=', '-', '+');
 
-print($chars[int(rand(scalar(@chars)))]) while($length--);
+print($charset[int(rand(scalar(@charset)))]) while($length--);
 print("\n");
 
