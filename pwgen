@@ -23,9 +23,13 @@ sub usage_text() {
         "suitable for use as a password, with a length of 'length' chars,",
         "or 10, if no length is given.",
         "",
-        "    -s: use a named set of characters. Names are: anum",
+        "    -s: use a named set of characters instead of the default set. ",
+        "       Names are: safe, anum, num, alpha, lalpha, ualpha",
         "",
-        "xren.pl (C) Copyright 2003-2008 by Calocybe Creations",
+        "It is not defined, which characters the default charset consists of,",
+        "i.e. this may change in a future version.",
+        "",
+        "pwgen.pl (C) Copyright 2003-2009 by Calocybe Creations",
         ""
     );
 }
@@ -33,29 +37,47 @@ sub usage_text() {
 
 
 
-my @charset;
+######  main()
+#
+#
+
+sub main() {
+    my @charset;
 
 
-getopts('s:', \%opts);
-print(usage_text()), return 1 unless (@ARGV <= 1);
+# TODO: provide -h or -? option
+    getopts('s:', \%opts);
+    print(usage_text()), return 1 unless (@ARGV <= 1);
 
 
-# default charset
-@charset = ('0'..'9', 'A'..'Z', '!', '$', '&', '/', ',', '.', '0'..'9', 'a'..'z', '(', ')', '=', '-', '+');
+    # default charset
+    @charset = ('0'..'9', 'A'..'Z', '!', '$', '&', '/', ',', '.', '0'..'9', 'a'..'z', '(', ')', '=', '-', '+');
 
-if ($opts{'s'}) {
-    $opts{'s'} = lc($opts{'s'});
+    if ($opts{'s'}) {
+        $opts{'s'} = lc($opts{'s'});
 
-    $opts{'s'} eq 'anum' and
-        @charset = ('0'..'9', 'A'..'Z', 'a'..'z') or
-    $opts{'s'} eq 'safe' and
-        @charset = ('0'..'9', 'A'..'Z', 'a'..'z', ',', '.');
+        $opts{'s'} eq 'safe' and
+            @charset = ('0'..'9', 'A'..'Z', 'a'..'z', ',', '.') or
+        $opts{'s'} eq 'anum' and
+            @charset = ('0'..'9', 'A'..'Z', 'a'..'z') or
+        $opts{'s'} eq 'num' and
+            @charset = ('0'..'9') or
+        $opts{'s'} eq 'alpha' and
+            @charset = ('A'..'Z', 'a'..'z') or
+        $opts{'s'} eq 'lalpha' and
+            @charset = ('a'..'z') or
+        $opts{'s'} eq 'ualpha' and
+            @charset = ('A'..'Z') or
+        0;
+    }
 
+
+    my $length = $ARGV[0] || 10;
+
+    print($charset[int(rand(scalar(@charset)))]) while($length--);
+    print("\n");
 }
 
 
-my $length = $ARGV[0] || 10;
-
-print($charset[int(rand(scalar(@charset)))]) while($length--);
-print("\n");
+exit(main());
 
