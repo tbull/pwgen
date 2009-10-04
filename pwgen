@@ -4,9 +4,11 @@ use strict;
 use Getopt::Std qw/getopts/;
 
 
-use vars qw/%opts/;
+use vars qw/%opts $DEFAULT_PASSWORD_LENGTH/;
 
 %opts = ();
+$DEFAULT_PASSWORD_LENGTH = 10;
+
 
 
 
@@ -17,14 +19,16 @@ use vars qw/%opts/;
 
 sub usage_text() {
     return join("\n",
-        "Usage: $0 [-s <setname>] [length]",
+        "Usage: $0 [-s <setname>] [[-l] length]",
         "",
         "Returns a random string made up from a given set of characters,",
         "suitable for use as a password, with a length of 'length' chars,",
-        "or 10, if no length is given.",
+        "or $DEFAULT_PASSWORD_LENGTH, if no length is given.",
         "",
-        "    -s: use a named set of characters instead of the default set. ",
-        "       Names are: safe, anum, num, alpha, lalpha, ualpha",
+        "    -l: Set the password length. Defaults to $DEFAULT_PASSWORD_LENGTH. You may supply",
+        "        the password length as an argument rather than as an option.",
+        "    -s: Use a named set of characters instead of the default set. ",
+        "        Names are: safe, anum, num, alpha, lalpha, ualpha",
         "",
         "It is not defined, which characters the default charset consists of,",
         "i.e. this may change in a future version.",
@@ -42,13 +46,13 @@ sub usage_text() {
 #
 
 sub main() {
-    my @charset;
+    my (@charset, $length);
 
 
-# TODO: provide -h or -? option
-    getopts('s:', \%opts);
+    getopts('hs:l:', \%opts);
+
     print(usage_text()), return 1 unless (@ARGV <= 1);
-
+    print(usage_text()), return 0 if ($opts{'h'});
 
     # default charset
     @charset = ('0'..'9', 'A'..'Z', '!', '$', '&', '/', ',', '.', '0'..'9', 'a'..'z', '(', ')', '=', '-', '+');
@@ -68,11 +72,14 @@ sub main() {
             @charset = ('a'..'z') or
         $opts{'s'} eq 'ualpha' and
             @charset = ('A'..'Z') or
-        0;
+        print STDERR "Unknown character set name, using default set.\n";
     }
 
 
-    my $length = $ARGV[0] || 10;
+    $length = $opts{'l'} || $ARGV[0] || $DEFAULT_PASSWORD_LENGTH;
+    # force numeric comparision to rule out alphabetic $length, which would result in an $UINT_MAX long password
+    $length = $DEFAULT_PASSWORD_LENGTH if ($length == 0);
+
 
     print($charset[int(rand(scalar(@charset)))]) while($length--);
     print("\n");
