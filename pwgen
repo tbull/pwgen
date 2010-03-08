@@ -33,7 +33,7 @@ sub usage_text() {
         "It is not defined, which characters the default charset consists of,",
         "i.e. this may change in a future version.",
         "",
-        "pwgen.pl (C) Copyright 2003-2009 by Calocybe Creations",
+        "pwgen (C) Copyright 2003-2010 by T-Bull <tbull@tbull.org>",
         ""
     );
 }
